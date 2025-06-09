@@ -1,0 +1,124 @@
+import React, { useState } from 'react';
+import { X, Plus } from 'lucide-react';
+
+const VehicleFilter = () => {
+  const allVehicles = [
+    'Alfa Romeo',
+    'Audi',
+    'BMW',
+    'Ford',
+    'Hyundai',
+    'Kia',
+    'Mercedes-Benz',
+    'Nissan',
+    'Seat',
+    'Suzuki',
+    'Tesla',
+    'Toyota',
+    'Volkswagen'
+  ];
+
+  const [selectedVehicles, setSelectedVehicles] = useState([]);
+  const [inputValue, setInputValue] = useState('');
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [showAddButton, setShowAddButton] = useState(false);
+
+  const availableVehicles = allVehicles.filter(vehicle => 
+    !selectedVehicles.includes(vehicle)
+  );
+
+  const filteredSuggestions = availableVehicles.filter(vehicle =>
+    vehicle.toLowerCase().includes(inputValue.toLowerCase())
+  );
+
+  const handleInputChange = (e) => {
+    const value = e.target.value;
+    setInputValue(value);
+    setShowSuggestions(value.length > 0);
+  };
+
+  const handleSuggestionClick = (vehicle) => {
+    setSelectedVehicles([...selectedVehicles, vehicle]);
+    setInputValue('');
+    setShowSuggestions(false);
+    setShowAddButton(true);
+  };
+
+  const handleRemoveVehicle = (vehicleToRemove) => {
+    const newSelected = selectedVehicles.filter(vehicle => vehicle !== vehicleToRemove);
+    setSelectedVehicles(newSelected);
+    
+    if (newSelected.length === 0) {
+      setShowAddButton(false);
+    }
+  };
+
+  const handleAddAnother = () => {
+    setShowAddButton(false);
+    setShowSuggestions(false);
+    setInputValue('');
+  };
+
+  const showInputField = selectedVehicles.length === 0 || !showAddButton;
+
+  return (
+    <div className="max-w-md mx-auto p-6 bg-white">
+      <h2 className="text-lg font-semibold mb-4 text-gray-900">Make & Model</h2>
+      
+      {/* Selected vehicles display */}
+      {selectedVehicles.map((vehicle, index) => (
+        <div key={vehicle} className="flex items-center justify-between bg-gray-50 px-3 py-2 rounded mb-2">
+          <span className="text-gray-900">{vehicle}</span>
+          <button
+            onClick={() => handleRemoveVehicle(vehicle)}
+            className="text-gray-500 hover:text-gray-700 p-1"
+            aria-label={`Remove ${vehicle}`}
+          >
+            <X size={16} />
+          </button>
+        </div>
+      ))}
+
+      {/* Input field */}
+      {showInputField && (
+        <div className="relative">
+          <input
+            type="text"
+            value={inputValue}
+            onChange={handleInputChange}
+            placeholder="Search for make & model..."
+            className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          />
+          
+          {/* Suggestions dropdown */}
+          {showSuggestions && filteredSuggestions.length > 0 && (
+            <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded shadow-lg max-h-60 overflow-y-auto">
+              {filteredSuggestions.map((vehicle) => (
+                <button
+                  key={vehicle}
+                  onClick={() => handleSuggestionClick(vehicle)}
+                  className="w-full text-left px-3 py-2 hover:bg-gray-100 focus:bg-gray-100 focus:outline-none"
+                >
+                  {vehicle}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Add another vehicle button */}
+      {showAddButton && availableVehicles.length > 0 && (
+        <button
+          onClick={handleAddAnother}
+          className="flex items-center text-blue-600 hover:text-blue-800 underline mt-3 focus:outline-none"
+        >
+          <Plus size={16} className="mr-1" />
+          Add another vehicle
+        </button>
+      )}
+    </div>
+  );
+};
+
+export default VehicleFilter;
